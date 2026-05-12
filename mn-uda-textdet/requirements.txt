@@ -1,0 +1,12 @@
+# Phase 0 minimal deps (Mac M5 Pro / MPS).
+# Install heavy OCR stacks (mmocr/mmdet/mmcv) only at W2 when starting baselines.
+torch>=2.4
+torchvision
+numpy
+pillow
+opencv-python
+shapely
+tqdm
+matplotlib
+scikit-learn
+pyyaml

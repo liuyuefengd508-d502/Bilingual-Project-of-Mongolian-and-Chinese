@@ -1,0 +1,25 @@
+name: mn-uda-textdet
+channels:
+  - pytorch
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  - numpy
+  - pillow
+  - opencv
+  - shapely
+  - tqdm
+  - matplotlib
+  - scikit-learn
+  - pyyaml
+  - pip:
+      - torch>=2.4
+      - torchvision
+      - mmengine
+      - mmcv-lite
+      - mmdet
+      - mmocr
+      - polygon3
+      - lanms-neo
+      - rapidfuzz

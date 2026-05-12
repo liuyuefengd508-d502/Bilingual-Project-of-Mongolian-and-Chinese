@@ -1,0 +1,21 @@
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+.ipynb_checkpoints/
+
+# checkpoints / large artifacts
+work_dirs/
+checkpoints/
+*.pth
+*.pt
+*.ckpt
+
+# logs
+runs/
+*.log
+wandb/
+
+# editor
+.vscode/
+.idea/

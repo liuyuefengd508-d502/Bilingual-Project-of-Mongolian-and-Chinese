@@ -1,0 +1,41 @@
+{
+  "root": "/Users/liuyu/Desktop/mydocuments/codes/windsurfTest/蒙汉双语",
+  "scene": {
+    "subset": "scene",
+    "image_count": 1501,
+    "label_count": 1501,
+    "missing_labels": [],
+    "orphan_labels": [],
+    "polygon_count": {
+      "total": 18598,
+      "mean_per_image": 12.390406395736177,
+      "max": 84,
+      "min": 2
+    },
+    "vertex_count_distribution": {
+      "4": 18597,
+      "5": 1
+    },
+    "transcription_tags_top10": [
+      [
+        "#",
+        18598
+      ]
+    ]
+  },
+  "handwrite": {
+    "subset": "handwrite",
+    "image_count": 1000,
+    "labeled_image_count": 999,
+    "unlabeled_images": [
+      "0098"
+    ],
+    "labels_referencing_missing_images": [],
+    "polygon_count": {
+      "total": 20115,
+      "mean_per_image": 20.115,
+      "max": 44,
+      "min": 1
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "seed": 42,
+  "scene": {
+    "kept": 1501,
+    "skipped": [],
+    "split": {
+      "train": 1051,
+      "val": 150,
+      "test": 300
+    },
+    "polygons": 18598
+  },
+  "handwrite": {
+    "kept": 999,
+    "skipped": [
+      "0098.jpg"
+    ],
+    "split": {
+      "train": 699,
+      "val": 100,
+      "test": 200
+    },
+    "polygons": 20093
+  }
+}
