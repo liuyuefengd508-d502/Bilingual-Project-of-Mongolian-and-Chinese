@@ -74,7 +74,7 @@ def parse_scene_label(txt: Path) -> list[list[float]]:
     return polys
 
 
-def build_scene(scene_root: Path) -> list[dict]:
+def build_scene(scene_root: Path, path_anchor: Path) -> list[dict]:
     img_dir = scene_root / "total"
     lbl_dir = scene_root / "label"
     items: list[dict] = []
@@ -100,7 +100,7 @@ def build_scene(scene_root: Path) -> list[dict]:
             for p in polys
         ]
         items.append({
-            "img_path": str(img_path.resolve()),
+            "img_path": str(img_path.resolve().relative_to(path_anchor)),
             "height": h, "width": w,
             "instances": instances,
         })
@@ -139,7 +139,7 @@ def parse_handwrite_label_file(path: Path) -> dict[str, list[list[float]]]:
     return out
 
 
-def build_handwrite(hw_root: Path) -> tuple[list[dict], list[str]]:
+def build_handwrite(hw_root: Path, path_anchor: Path) -> tuple[list[dict], list[str]]:
     img_dir = hw_root / "train"
     lbl_dir = hw_root / "train-label"
     label_map: dict[str, list[list[float]]] = {}
@@ -166,7 +166,7 @@ def build_handwrite(hw_root: Path) -> tuple[list[dict], list[str]]:
             for p in polys
         ]
         items.append({
-            "img_path": str(img_path.resolve()),
+            "img_path": str(img_path.resolve().relative_to(path_anchor)),
             "height": h, "width": w,
             "instances": instances,
         })
@@ -196,7 +196,11 @@ def dump(path: Path, data_list: Iterable[dict]) -> None:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--root", type=Path, default=Path("../蒙汉双语"))
+    ap.add_argument("--root", type=Path, default=Path("../蒙汉双语"),
+                    help="Path to the raw dataset root (蒙汉双语/).")
+    ap.add_argument("--path-anchor", type=Path, default=None,
+                    help="Anchor directory; img_path will be stored relative to it. "
+                         "Default = parent of --root (so paths look like '蒙汉双语/...').")
     ap.add_argument("--out", type=Path, default=Path("splits"))
     ap.add_argument("--seed", type=int, default=42)
     args = ap.parse_args()
@@ -204,9 +208,10 @@ def main() -> None:
     root = args.root.resolve()
     if not root.exists():
         raise SystemExit(f"Root not found: {root}")
+    anchor = (args.path_anchor or root.parent).resolve()
 
-    scene_items, scene_skipped = build_scene(root / "自然场景")
-    hw_items, hw_skipped = build_handwrite(root / "手写档案")
+    scene_items, scene_skipped = build_scene(root / "自然场景", anchor)
+    hw_items, hw_skipped = build_handwrite(root / "手写档案", anchor)
 
     s_tr, s_va, s_te = split_712(scene_items, args.seed)
     h_tr, h_va, h_te = split_712(hw_items, args.seed)
@@ -220,6 +225,7 @@ def main() -> None:
 
     report = {
         "seed": args.seed,
+        "path_anchor": str(anchor),
         "scene": {
             "kept": len(scene_items), "skipped": scene_skipped,
             "split": {"train": len(s_tr), "val": len(s_va), "test": len(s_te)},
