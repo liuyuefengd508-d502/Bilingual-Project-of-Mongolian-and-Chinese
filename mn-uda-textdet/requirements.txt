@@ -6,6 +6,7 @@ numpy
 pillow
 opencv-python
 shapely
+pyclipper
 tqdm
 matplotlib
 scikit-learn
