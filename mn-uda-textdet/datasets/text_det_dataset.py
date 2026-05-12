@@ -12,6 +12,7 @@ Notes:
 from __future__ import annotations
 
 import json
+import random
 from pathlib import Path
 from typing import Sequence
 
@@ -21,6 +22,7 @@ from PIL import Image, ImageDraw
 from torch.utils.data import Dataset
 
 from .dbnet_targets import generate_dbnet_targets
+from .transforms import AugmentConfig, random_augment
 
 
 IMAGENET_MEAN = (0.485, 0.456, 0.406)
@@ -43,6 +45,9 @@ class TextDetJsonDataset(Dataset):
         ignore_flag_key: str = "ignore",
         target_mode: str = "binary",
         shrink_ratio: float = 0.4,
+        augment: bool = False,
+        augment_cfg: AugmentConfig | None = None,
+        seed: int | None = None,
     ) -> None:
         self.ann_file = Path(ann_file)
         self.data_root = Path(data_root)
@@ -52,6 +57,14 @@ class TextDetJsonDataset(Dataset):
             raise ValueError(f"Unknown target_mode: {target_mode}")
         self.target_mode = target_mode
         self.shrink_ratio = float(shrink_ratio)
+        self.augment = bool(augment)
+        if augment_cfg is None:
+            augment_cfg = AugmentConfig(out_size=self.image_size)
+        else:
+            augment_cfg.out_size = self.image_size
+        self.augment_cfg = augment_cfg
+        # Per-dataset RNG (workers can re-seed via worker_init_fn if needed).
+        self._rng = random.Random(seed)
 
         with self.ann_file.open("r", encoding="utf-8") as f:
             payload = json.load(f)
@@ -79,9 +92,26 @@ class TextDetJsonDataset(Dataset):
             igs.append(bool(inst.get(self.ignore_flag_key, False)))
         return img_resized, polys, igs
 
+    def _load_raw(self, rec: dict) -> tuple[Image.Image, list[np.ndarray], list[bool]]:
+        """Like _load_and_resize but keeps original resolution (for augment)."""
+        img = Image.open((self.data_root / rec["img_path"]).resolve()).convert("RGB")
+        polys: list[np.ndarray] = []
+        igs: list[bool] = []
+        for inst in rec.get("instances", []):
+            xy = np.asarray(inst["polygon"], dtype=np.float32).reshape(-1, 2)
+            polys.append(xy)
+            igs.append(bool(inst.get(self.ignore_flag_key, False)))
+        return img, polys, igs
+
     def __getitem__(self, idx: int) -> dict:
         rec = self.data_list[idx]
-        img_resized, polys, igs = self._load_and_resize(rec)
+        if self.augment:
+            img_raw, polys_raw, igs_raw = self._load_raw(rec)
+            img_resized, polys, igs = random_augment(
+                img_raw, polys_raw, igs_raw, self.augment_cfg, self._rng,
+            )
+        else:
+            img_resized, polys, igs = self._load_and_resize(rec)
         size = self.image_size
 
         # Normalize image to tensor.

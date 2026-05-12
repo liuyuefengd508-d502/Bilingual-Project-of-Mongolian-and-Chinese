@@ -33,7 +33,8 @@ def pick_device(force_cpu: bool = False) -> torch.device:
 
 def _build_loaders(args) -> tuple[DataLoader, DataLoader, TextDetJsonDataset, TextDetJsonDataset]:
     train_ds = TextDetJsonDataset(args.train, args.data_root,
-                                  image_size=args.size, target_mode="dbnet")
+                                  image_size=args.size, target_mode="dbnet",
+                                  augment=args.augment, seed=args.seed)
     val_ds = TextDetJsonDataset(args.val, args.data_root,
                                 image_size=args.size, target_mode="dbnet")
     train_loader = DataLoader(
@@ -103,8 +104,12 @@ def main() -> int:
     ap.add_argument("--unclip-ratio", type=float, default=1.5)
     ap.add_argument("--iou-thresh", type=float, default=0.5)
     ap.add_argument("--log-every", type=int, default=20)
+    ap.add_argument("--augment", action="store_true",
+                    help="Enable rotation/scale/crop/color-jitter augmentations.")
+    ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--cpu", action="store_true")
     args = ap.parse_args()
+    torch.manual_seed(args.seed)
 
     args.out.mkdir(parents=True, exist_ok=True)
     device = pick_device(force_cpu=args.cpu)
