@@ -25,8 +25,8 @@ from PIL import Image, ImageEnhance
 class AugmentConfig:
     out_size: int = 640
     rotate_deg: float = 10.0          # +/- range
-    scale_min: float = 0.5
-    scale_max: float = 2.0
+    scale_min: float = 0.75
+    scale_max: float = 1.5
     color_brightness: float = 0.2
     color_contrast: float = 0.2
     pad_value: tuple[int, int, int] = (114, 114, 114)
