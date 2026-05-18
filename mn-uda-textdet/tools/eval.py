@@ -111,10 +111,22 @@ def main() -> int:
     print(f"Samples: {len(ds)}")
 
     model = DBNet(backbone=args.backbone, pretrained=False).to(device)
-    state = torch.load(args.ckpt, map_location=device, weights_only=False)
-    model.load_state_dict(state["model"] if "model" in state else state)
-    print(f"Loaded ckpt epoch={state.get('epoch', '?')} "
-          f"train_metrics={state.get('metrics', {})}")
+    raw = torch.load(args.ckpt, map_location=device, weights_only=False)
+    if isinstance(raw, dict):
+        if "student" in raw:
+            weights = raw["student"]
+            meta_epoch = raw.get("epoch", "?")
+        elif "model" in raw:
+            weights = raw["model"]
+            meta_epoch = raw.get("epoch", "?")
+        else:
+            weights = raw
+            meta_epoch = "?"
+    else:
+        weights = raw
+        meta_epoch = "?"
+    model.load_state_dict(weights)
+    print(f"Loaded ckpt epoch={meta_epoch}")
 
     t0 = time.time()
     metrics = evaluate(

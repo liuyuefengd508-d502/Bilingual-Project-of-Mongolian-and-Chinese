@@ -5,6 +5,9 @@
 10127_2023023254_lw.pdf
 *.pdf
 
+# --- Local Miniforge (bootstrap_conda_uda.sh) ---
+.miniforge3/
+
 # --- Python ---
 .venv/
 **/.venv/

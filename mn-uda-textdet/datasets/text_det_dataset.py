@@ -35,6 +35,8 @@ class TextDetJsonDataset(Dataset):
     target_mode:
         'binary' : produce a single binary text mask (legacy / smoke test).
         'dbnet'  : produce DBNet supervision (gt, gt_mask, thresh_map, thresh_mask).
+
+    If ``labeled=False``, only ``image`` / meta keys are returned (UDA target stream).
     """
 
     def __init__(
@@ -48,11 +50,13 @@ class TextDetJsonDataset(Dataset):
         augment: bool = False,
         augment_cfg: AugmentConfig | None = None,
         seed: int | None = None,
+        labeled: bool = True,
     ) -> None:
         self.ann_file = Path(ann_file)
         self.data_root = Path(data_root)
         self.image_size = int(image_size)
         self.ignore_flag_key = ignore_flag_key
+        self.labeled = bool(labeled)
         if target_mode not in ("binary", "dbnet"):
             raise ValueError(f"Unknown target_mode: {target_mode}")
         self.target_mode = target_mode
@@ -126,22 +130,23 @@ class TextDetJsonDataset(Dataset):
             "orig_size": (rec.get("height", size), rec.get("width", size)),
         }
 
-        if self.target_mode == "binary":
-            mask = Image.new("L", (size, size), 0)
-            draw = ImageDraw.Draw(mask)
-            for poly, ig in zip(polys, igs):
-                if ig or poly.shape[0] < 3:
-                    continue
-                draw.polygon([tuple(p) for p in poly], fill=1)
-            out["mask"] = torch.from_numpy(np.asarray(mask, dtype=np.float32))
-        else:  # dbnet
-            tgt = generate_dbnet_targets(
-                polys, igs, size, size, shrink_ratio=self.shrink_ratio,
-            )
-            out["gt"] = torch.from_numpy(tgt["gt"])
-            out["gt_mask"] = torch.from_numpy(tgt["gt_mask"])
-            out["thresh_map"] = torch.from_numpy(tgt["thresh_map"])
-            out["thresh_mask"] = torch.from_numpy(tgt["thresh_mask"])
+        if self.labeled:
+            if self.target_mode == "binary":
+                mask = Image.new("L", (size, size), 0)
+                draw = ImageDraw.Draw(mask)
+                for poly, ig in zip(polys, igs):
+                    if ig or poly.shape[0] < 3:
+                        continue
+                    draw.polygon([tuple(p) for p in poly], fill=1)
+                out["mask"] = torch.from_numpy(np.asarray(mask, dtype=np.float32))
+            else:  # dbnet
+                tgt = generate_dbnet_targets(
+                    polys, igs, size, size, shrink_ratio=self.shrink_ratio,
+                )
+                out["gt"] = torch.from_numpy(tgt["gt"])
+                out["gt_mask"] = torch.from_numpy(tgt["gt_mask"])
+                out["thresh_map"] = torch.from_numpy(tgt["thresh_map"])
+                out["thresh_mask"] = torch.from_numpy(tgt["thresh_mask"])
 
         return out
 

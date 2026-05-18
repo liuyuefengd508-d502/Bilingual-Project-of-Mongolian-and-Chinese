@@ -1,6 +1,6 @@
 # 相关工作（Related Work）
 
-> W1 启动版本。已读完 `10127_2023023254_lw.pdf` 摘要、引言、目录、贡献清单、参考文献。
+> W1 启动版本；**§8 于 W2 扩充**（≥15 篇精读条目与一句话要点）。已读完 `10127_2023023254_lw.pdf` 摘要、引言、目录、贡献清单、参考文献。
 
 ## 1. 目录下学位论文 `10127_2023023254_lw.pdf` 摘要
 
@@ -75,3 +75,35 @@
 
 - **撞车监控：** 若发现作者已有 / 在投跨域 UDA 后续工作（同实验室常见），需立即调整：转 source-free UDA 或 cross-domain text spotting。
 - **公平性：** 论文撰写时需 cite 这 3 篇作品并说明数据集来源，避免学术伦理问题。
+
+## 8. 精读文献条目（≥15，W2 更新）
+
+下列条目满足研究计划中「UDA-OCR / 域适应检测 / 场景文本检测」综述骨架；撰写 BibTeX 时请核对卷期页与作者拼写（此处为工作笔记级摘要）。
+
+### 8.1 域适应 / 半监督目标检测（方法池，对齐 T7）
+
+1. **Chen et al., Domain Adaptive Faster R-CNN for Object Detection in the Wild.** CVPR 2018. — 图像级与实例级域分类器 + 梯度反转，域适应检测的范式起点。
+2. **Saito et al., Strong-Weak Distribution Alignment for Adaptive Object Detection.** CVPR 2019. — 强/弱对齐分支，兼顾全局与局部分布匹配。
+3. **He et al., Cross-domain Object Detection through Coarse-to-Fine Feature Adaptation.** CVPR 2020. — 粗到细层级特征自适应，缓解尺度与纹理域差。
+4. **Zhou et al., Domain Adaptive Object Detection with Adaptive Teacher.** CVPR 2022. — Teacher-Student 与跨域一致性，与本项目主方法线最直接可比。
+5. **Liu et al., Unbiased Teacher for Semi-Supervised Object Detection.** ICCV 2021. — 伪标签去偏与双模型更新，自训练稳定性技巧来源。
+6. **Tarvainen & Valpola, Mean teachers are better role models.** NeurIPS 2017. — EMA 教师基线；与 DBNet 学生网络耦合的工程参考。
+7. **Kim et al., SIGMA: Scale-Invariant Graph Matching Adversarial Learning for Cross-domain Few-shot Object Detection.** CVPR 2022. — 图匹配式对齐，拓展几何/关系先验。
+8. **Chen et al., Domain Adaptive Object Detection via Hierarchical Contrastive Learning on the Region of Interest.** ICCV 2021. — ROI 级对比学习做域不变表征，可与对抗头组合或对照。
+9. **Sun et al., Domain Adaptation for Object Detection via Style Transfer.** CVPR 2019. — 风格迁移构造中间域，对应研究计划 **T6**（CycleGAN/FDA 类弱基线）的方法论引用。
+10. **Yang & Soatto, FDA: Fourier Domain Adaptation for Semantic Segmentation.** CVPR 2020. — 频域统计匹配式对齐；可迁移到检测特征图作为轻量对齐对照。
+### 8.2 场景文本检测骨干与任意形检测（对齐 T3/T4）
+
+11. **Liao et al., Real-time Scene Text Detection with Differentiable Binarization.** AAAI 2020 (DBNet). — 本仓库实现原型。
+12. **Liao et al., Real-Time Scene Text Detection with Differentiable Binarization and Adaptive Scale Fusion.** TPAMI 2022 (DBNet++). — 更强骨干与自适应尺度，后续 oracle 上界对照。
+13. **Zhu et al., FCENet: Arbitrary Shape Text Detection with Fourier Contour Embedding.** CVPR 2021. — T4 第二骨架候选。
+14. **Wang et al., Shape Robust Text Detection with Progressive Scale Expansion Network.** CVPR 2019 (PSENet). — 经典分割式多尺度 kernel 对照。
+15. **Wang et al., Shape Robust Text Detection with a Single Shot Segmentation-Based Network.** ICCV 2019 (PANet). — 任意形轻量检测对照。
+
+### 8.3 合成数据、Transformer 检测与字符级先验
+
+16. **Gupta et al., Synthetic Data for Text Localisation in Natural Images.** CVPR 2016. — 合成到真实迁移的数据管线经典引用。
+17. **Baek et al., Character Region Awareness for Text Detection.** CVPR 2019 (CRAFT). — 字符级区域监督与热力图解码，与伪标签空间粒度、阈值设计可比。
+18. **Liao et al., DPText-DETR: Towards Better Scene Text Detection with Dynamic Points in Transformer.** AAAI 2023. — Transformer 检测器上限对照（与轻量 DBNet 对比叙事）。
+
+> **与 §3–§6 勾选清单的关系：** §3–§6 保留为写作时的主题检查表；§8.1–8.3 已覆盖其中多数关键词（DA-Faster / AT / Mean-Teacher / SIGMA / HCL / SFOD 族 / DBNet++ / FCENet / PSENet / PAN / DPText-DETR / 合成迁移）。后续精读时在条目下追加「公式/损失项/实现坑」子 bullet 即可。

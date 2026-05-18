@@ -89,7 +89,7 @@ class DBNet(nn.Module):
             nn.Conv2d(in_ch, 1, 1),
         )
 
-    def forward(self, x: torch.Tensor) -> dict[str, torch.Tensor]:
+    def forward(self, x: torch.Tensor, return_feat: bool = False) -> dict[str, torch.Tensor]:
         h0 = self.stem(x)
         c1 = self.layer1(h0)   # 1/4
         c2 = self.layer2(c1)   # 1/8
@@ -120,12 +120,15 @@ class DBNet(nn.Module):
         prob = torch.sigmoid(prob_logits)
         thresh = torch.sigmoid(thresh_logits)
         binary = torch.sigmoid(self.k * (prob - thresh))
-        return {
+        out: dict[str, torch.Tensor] = {
             "prob_logits": prob_logits,
             "prob": prob,
             "thresh": thresh,
             "binary": binary,
         }
+        if return_feat:
+            out["feat"] = feat
+        return out
 
 
 def _balanced_bce(pred: torch.Tensor, gt: torch.Tensor, mask: torch.Tensor,

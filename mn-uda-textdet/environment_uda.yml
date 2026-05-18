@@ -1,0 +1,20 @@
+# UDA / DBNet 训练专用：torch+torchvision 走 pip（macOS 官方 wheel 含 MPS），其余走 conda-forge。
+# 不含 MMOCR/MMDet。安装：bash scripts/bootstrap_conda_uda.sh
+name: mn-uda-textdet-uda
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  - numpy
+  - pillow
+  - opencv
+  - shapely
+  - tqdm
+  - matplotlib
+  - pyyaml
+  - scikit-learn
+  - pip:
+      - torch>=2.4
+      - torchvision
+      - pyclipper
