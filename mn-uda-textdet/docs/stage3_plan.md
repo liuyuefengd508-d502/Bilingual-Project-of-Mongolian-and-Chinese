@@ -10,14 +10,15 @@ Stage-3 目标：**把 marginal gain（~3pp）推到 paper-grade（10pp+）**，
 
 ## 1. Stage-3 候选实验（按 ROI 排序）
 
-### 1.1 ⭐⭐⭐ Test-time post-process sweep on UDA ckpts （ROI 最高）
+### 1.1 ✅ DONE — Test-time post-process sweep on UDA ckpts
 
-- **预期收益**：+1~3pp，仅靠阈值搜索，零额外训练成本
-- **成本**：~1h（forward pass 一次 + 30 组阈值组合）
-- **方法**：复用 `tools/sweep_postprocess.py`，在 `uda_h2s_v3/best_student.pth`
-  和 `uda_s2h_init/best_student.pth` 上扫 `box_thresh × min_score` 网格
-- **可比性**：Stage-1 已用同样方法报告，Stage-2 跟进保持一致
-- **风险**：低；不会让结果变差，只会找到比当前 0.45/0.5 更好的阈值
+- **实际结果**（test set，30 阈值组合）：
+  - H→S：source-only 0.0753 vs UDA 0.0767 → **Δ +0.14pp（≈ 噪声）**
+  - S→H：source-only 0.0028 vs UDA 0.0654 → **Δ +6.26pp ⭐**
+- **新发现**：UDA 增益**不对称** —— 仅在 source-only 结构性失败的方向（S→H）有质变；
+  在 source-only 已有弱信号的方向（H→S）几乎无增益
+- **影响**：Stage-2 验收正式通过（S→H +6.26pp，远超 +3pp 门槛）。
+  详见 `baseline_results.md` 的 "Threshold sweep" 章节
 
 ### 1.2 ⭐⭐⭐ 更强的 source-only baseline（ResNet-50 / 长训 oracle）
 

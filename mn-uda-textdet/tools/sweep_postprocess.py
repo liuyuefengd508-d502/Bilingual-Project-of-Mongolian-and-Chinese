@@ -54,7 +54,8 @@ def main() -> int:
 
     model = DBNet(backbone=args.backbone, pretrained=False).to(device)
     state = torch.load(args.ckpt, map_location=device, weights_only=False)
-    model.load_state_dict(state["model"] if "model" in state else state)
+    weights = state.get("student") or state.get("model") or state
+    model.load_state_dict(weights)
     model.eval()
 
     # Cache probability maps + per-sample GT in network input scale.
