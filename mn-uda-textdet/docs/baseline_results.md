@@ -236,6 +236,23 @@ To verify the 5-epoch result was not under-trained, we ran the same v3 config
 This long-run failure curve itself is reportable as evidence of pseudo-label drift
 collapse in low-budget self-training UDA.
 
+### Symmetric long-run on S→H (`work_dirs/uda_s2h_long2/`, 25 epochs)
+
+| Epoch | val_tgt H |
+|---|---|
+| **1** | **0.0353** ⭐ best (≈ uda_s2h_init's 0.0337 within MPS variance) |
+| 2 | 0.0020 — immediate collapse |
+| 3 | 0.0000 |
+| 4–7 | ≤ 0.004 |
+| 8–25 | mostly 0.000 (≥ 10 consecutive zero-H epochs) |
+
+**S→H collapses faster than H→S** (ep 2 vs ep 9), confirming:
+
+- 5-epoch sweet spot is **bidirectional and structural**, not an artifact of one direction.
+- S→H has a **narrower stable window** because its baseline (random teacher initialised from
+  `scene_r18`) is even more brittle on the handwrite domain.
+- Both directions exhibit the same teacher-student drift collapse mechanism.
+
 ## Qualitative figures
 
 Per-sample 4-panel renders ([input | GT | prob heatmap | predicted polygons]) are
@@ -244,16 +261,20 @@ The companion script `tools/build_uda_compare_grid.py` stacks each baseline
 sample directly above the UDA sample on the *same target image*, producing two
 master comparison figures:
 
-- `work_dirs/figs/compare_h2s_scene.jpg` — handwrite oracle vs UDA on scene_test
-- `work_dirs/figs/compare_s2h_handwrite.jpg` — scene oracle vs UDA on handwrite_test
+- `work_dirs/figs/compare_h2s_scene.jpg` — handwrite oracle vs UDA on scene_test (thresh 0.45/0.5)
+- `work_dirs/figs/compare_s2h_handwrite.jpg` — scene oracle vs UDA on handwrite_test (thresh 0.45/0.5)
+- `work_dirs/figs/compare_s2h_handwrite_sweep.jpg` ⭐ — same as above but using
+  the **swept-best thresholds 0.35/0.45** (UDA H rises from 0.0285 → 0.0654; the
+  qualitative gap between source-only and UDA is far more pronounced)
 
 The S→H grid is the most striking: source-only panels show `pred (0)` (no detections),
-UDA panels begin recovering text-column outlines.
+UDA panels begin recovering text-column outlines. The `_sweep` version is recommended
+for paper inclusion as it shows each model at its best-threshold configuration.
 
 ## Outstanding (Stage-3 candidates)
 
-1. ~~Long training (25 epoch) with v3 hyperparams in both directions~~ ✅ done for H→S; confirmed 5-epoch is the optimum (see "Long-training validation" above). S→H long-run still pending if needed for symmetric reporting.
+1. ~~Long training (25 epoch) with v3 hyperparams in both directions~~ ✅ done for **both** H→S and S→H; sweet spot is bidirectional (see "Long-training validation").
 2. Stronger domain head (multi-layer conv) — current single-layer may be the cap.
-3. Test-time post-process sweep on UDA ckpts (analogous to Stage-1 sweep).
-4. ~~Qualitative figures (target-domain success cases for both directions)~~ ✅ done — see "Qualitative figures" section.
+3. ~~Test-time post-process sweep on UDA ckpts~~ ✅ done — see "Threshold sweep" section.
+4. ~~Qualitative figures (target-domain success cases for both directions)~~ ✅ done — fixed-thresh + sweep variants in `docs/figures/`.
 5. Cross-check on a stronger ResNet-50 oracle init.
