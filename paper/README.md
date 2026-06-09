@@ -31,36 +31,41 @@ pdflatex main.tex && bibtex main && pdflatex main.tex && pdflatex main.tex
 
 ## Status
 
-**~30% drafted (skeleton + abstract + main table + key method paragraph).**
+**~85% drafted -- complete first draft compiles to 13-page PDF.**
+Remaining work is Related Work prose, citation verification, affiliation,
+and template switch to elsarticle for final submission.
 
 ### Done
 - Document skeleton with all sections wired up
-- Abstract first draft (one full paragraph, captures all three contributions)
-- Contributions list (introduction)
-- Cold-start initialization key paragraph (method)
-- Main results table (Table 2)
-- Cross-domain motivation table (Table 1)
-- Bibliography stub with key references
+- Abstract: complete (one full paragraph capturing all three contributions)
+- Introduction: complete (4 paragraphs + contributions list)
+- Method: complete (DBNet/EMA/DANN/cold-start/pseudo-weighting with equations)
+- Experiments 4.1 Datasets: complete
+- Experiments 4.2 Implementation details: complete
+- Experiments 4.3 Cross-domain motivation table + prose: complete
+- Experiments 4.4 Main results table: complete
+- Experiments 4.5 Asymmetric gain analysis: complete
+- Experiments 4.6 Long-training analysis + 5-ep argument: complete
+- Experiments 4.7 Hyperparameter ablation table + prose: complete
+- Experiments 4.8 Qualitative results: complete
+- Discussion: complete (4 subsections)
+- Conclusion: complete
+- Figures: long-run curves PDF generated, dataset overview JPG generated,
+  comparison grids copied from `docs/figures/`
+- References: stub with DBNet, FCENet, PSENet, DANN, AdaptiveTeacher, MIC,
+  USTB Mongolian work
+- LaTeX compiles cleanly: 13 pages, no float-too-large warnings.
 
 ### TODO before submission
 
 | Section | Item |
 |---|---|
-| Intro | 4-paragraph prose body (motivation → why UDA → our findings → outline) |
-| Related work | Fill prose under each subsection; verify all `\cite` keys |
-| Method | DBNet/EMA/DANN equations; pseudo-label confidence filter formal definition |
-| Experiments 4.1 | Dataset table + 1 illustrative image per domain |
-| Experiments 4.2 | Implementation details paragraph (env, optimiser, schedule, walltime) |
-| Experiments 4.5 | Asymmetric gain analysis paragraphs (currently TODO block) |
-| Experiments 4.6 | Long-training plot (PNG export from log files) |
-| Experiments 4.7 | v1/v2/v3 ablation table |
-| Experiments 4.8 | Insert + caption qualitative figures from `docs/figures/` |
-| Discussion | All four subsections' prose |
-| Conclusion | Final paragraph (1 page max) |
-| References | Verify USTB-related citations; complete author names/titles |
-| Figures | Convert `compare_*.jpg` to `figures/` (rename + maybe shrink) |
-| Acknowledgments | If applicable |
-| Affiliation | Replace `\TODO{Affiliation}` with the correct department/institution |
+| Related work | Fill prose under each subsection (3 TODOs) |
+| References | Verify USTB-related citations (author/title/DOI); add cite keys |
+| Title page | Replace `\TODO{Affiliation}` with institution |
+| Template | Switch \documentclass to `elsarticle` (see comment in main.tex) |
+| Acknowledgments | Add if applicable |
+| Polish | Single proofreading pass for tone/typos |
 
 ## Source data for tables
 

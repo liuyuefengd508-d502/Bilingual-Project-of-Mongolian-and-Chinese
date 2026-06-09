@@ -1,11 +1,29 @@
 \section{Conclusion}
 \label{sec:conclusion}
 
-\TODO{Summarise the three empirical contributions: (1) cold-start
-collapse identification + minimal init-from fix, (2) asymmetric UDA
-gain phenomenon documented on a real cross-domain Mongolian benchmark,
-(3) 5-epoch structural sweet spot validated bidirectionally. Close
-with a one-sentence message: ``For under-resourced cross-domain text
-detection on a constrained budget, self-training UDA is most useful
-where the source-only baseline is most broken, and stays useful only
-within a narrow training window.''}
+We have presented an empirical study of self-training unsupervised
+domain adaptation for cross-domain Mongolian text detection.
+On a clean two-domain bilingual benchmark we diagnose three failure
+modes that the prevailing UDA recipe overlooks when scaled down to
+small corpora and constrained compute. First, we identify a
+\emph{cold-start collapse} in which a randomly initialised teacher
+produces noise pseudo-labels that the student cannot escape, and show
+that a one-line remedy -- initialising both networks from the
+source-only checkpoint -- raises the harder of our two transfer
+directions from zero true positives to a measurable
+$\hmean = 0.0654$ after threshold sweeping. Second, we document an
+\emph{asymmetric UDA gain phenomenon}: the same pipeline yields a
+$+6.26$~pp $\hmean$ jump where source-only is structurally broken,
+and only $+0.14$~pp where source-only already produces a weak target
+signal. Third, we show that this pipeline has a structural
+\emph{5-epoch sweet spot}; extending training to 25 epochs collapses
+$\hmean$ in both directions through teacher--student drift, even
+under a conservative pseudo-label weight schedule.
+
+The headline message of the work is that for under-resourced
+cross-domain text detection on a constrained compute budget,
+self-training UDA is most useful precisely where the source-only
+baseline is most broken, and stays useful only within a narrow
+training window. We hope this regime-aware perspective will guide
+both method design and reporting standards in future low-budget UDA
+work.

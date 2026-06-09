@@ -11,8 +11,23 @@ handwriting as target). The evaluation metric is polygon-level
 $\hmean$ at IoU $\geq 0.5$.
 
 \subsection{Detection backbone and training objective}
-\TODO{Describe DBNet (ResNet-18 + FPN, $640 \times 640$ input) and the
-binary-segmentation training objective with shrunk-polygon ground truth.}
+\label{sec:method:backbone}
+We use DBNet~\cite{liao2020real} with a ResNet-18 backbone and an FPN
+neck, taking $640 \times 640$ inputs. The network outputs a probability
+map $p \in [0,1]^{H \times W}$ that scores per-pixel text presence. Ground
+truth is constructed by shrinking each annotated polygon by a fixed offset
+to a positive mask $g \in \{0,1\}^{H \times W}$. The detection loss is the
+standard combination of dice and binary cross-entropy on $p$ versus $g$,
+\begin{equation}
+  \mathcal{L}_{\mathrm{det}}(p,g)
+    = \mathcal{L}_{\mathrm{dice}}(p,g)
+    + \lambda_{\mathrm{bce}}\,\mathcal{L}_{\mathrm{bce}}(p,g),
+  \label{eq:det}
+\end{equation}
+with $\lambda_{\mathrm{bce}}=1.0$ throughout. At inference, $p$ is
+binarised by a learned threshold and contours are extracted, then expanded
+back by an unclip ratio of $1.5$. We use polygon-level $\hmean$ at
+$\mathrm{IoU}\ge 0.5$ as the sole evaluation metric.
 
 \subsection{Self-training UDA pipeline}
 \label{sec:method:uda}
@@ -22,8 +37,51 @@ image-level domain-adversarial classifier with a gradient-reversal layer
 operating on fused FPN features (DANN~\cite{ganin2015dann}), and
 (c) per-epoch validation on the target validation split, with
 \texttt{best\_student.pth} saved at the highest target $\hmean$.
-\TODO{Equations for student loss, EMA update, GRL coefficient ramp,
-pseudo-label confidence filter and per-step weights.}
+Let $\theta_s$ and $\theta_t$ denote the student and teacher parameters
+respectively. The teacher is updated each step with an exponential moving
+average,
+\begin{equation}
+  \theta_t \leftarrow \alpha\,\theta_t + (1-\alpha)\,\theta_s,
+  \quad \alpha = 0.999.
+  \label{eq:ema}
+\end{equation}
+For each minibatch, an image batch $x^{(s)}$ from the source domain
+$\mathcal{D}_s$ (with ground-truth masks $g^{(s)}$) and an unlabeled
+batch $x^{(t)}$ from the target domain $\mathcal{D}_t$ are drawn.
+Pseudo-labels $\tilde g^{(t)}$ on the target batch are produced by
+binarising the teacher's probability map $p_t(x^{(t)})$ at a confidence
+threshold $\tau_{\mathrm{conf}}=0.55$. A per-image keep-flag
+\begin{equation}
+  m_i =
+  \mathbf{1}\!\left[\,
+    \max_{u,v} p_t\bigl(x_i^{(t)}\bigr)_{uv} > \tau_{\mathrm{conf}}
+  \right]
+  \label{eq:keep}
+\end{equation}
+discards images on which the teacher is too uncertain to provide any
+pseudo-signal; the realised fraction $\mathbb{E}[m_i]$ is the
+\emph{pseudo coverage} reported in our logs. The total student
+objective at training step $k$ is
+\begin{equation}
+\begin{aligned}
+  \mathcal{L}_{\mathrm{stud}}
+   = \;& \mathcal{L}_{\mathrm{det}}\!\bigl(p_s(x^{(s)}), g^{(s)}\bigr) \\
+     & + w_p(k)\;\overline{m_i\,
+        \mathcal{L}_{\mathrm{det}}\!\bigl(p_s(x_i^{(t)}),\,\tilde g_i^{(t)}\bigr)} \\
+     & + w_d(k)\;\mathcal{L}_{\mathrm{dom}}\!\bigl(F(x^{(s)}),F(x^{(t)})\bigr),
+\end{aligned}
+  \label{eq:total}
+\end{equation}
+where $F(\cdot)$ denotes the FPN-fused feature map fed into the domain
+classifier, $\mathcal{L}_{\mathrm{dom}}$ is binary cross-entropy on the
+source/target label, and $w_p, w_d$ are the pseudo-label and
+domain-loss weights described in Sec.~\ref{sec:method:weighting}. The
+overline denotes the per-batch mean.
+
+The GRL coefficient on the domain branch follows the canonical schedule
+$\gamma(k) = 2/(1+\exp(-10\,k/K)) - 1$, where $K$ is the total number
+of training steps; $\gamma$ saturates to $1.0$ in the second half of
+training, making the domain head progressively harder to fool.
 
 \subsection{Cold-start initialisation (key contribution)}
 \label{sec:method:coldstart}
@@ -48,8 +106,25 @@ improves.
 
 \subsection{Conservative pseudo-label weighting}
 \label{sec:method:weighting}
-\TODO{Describe the linear ramp of pseudo-label weight $w_p$ from $0$ to
-$w_p^{\max} = 0.1$ over the training schedule, and its rationale: too
-aggressive a weight (e.g.\ $w_p^{\max} = 0.5$ in our v1 ablation)
-quickly tips the teacher into over-confident predictions and triggers
-the drift collapse studied in Sec.~\ref{sec:exp:long}.}
+The pseudo-label and domain weights both ramp linearly from $0$ at
+the start of training. The pseudo-weight rises over the first
+$w_p^{\mathrm{warm}}$ epochs to $w_p^{\max}$ and is held constant
+afterwards; the domain weight follows the same ramp with maximum
+$w_d^{\max}=0.1$. Formally,
+\begin{equation}
+  w_p(k) \;=\; w_p^{\max}\,\min\!\Bigl(1,\;\frac{k}{w_p^{\mathrm{warm}}\,S}\Bigr),
+  \label{eq:ramp}
+\end{equation}
+where $S$ is the number of steps per epoch.
+
+The cap $w_p^{\max}$ is the single most consequential hyperparameter
+in our pipeline. Setting $w_p^{\max}=0.5$ (our v1 ablation) reproduces
+the typical literature value and improves early epochs, but its
+sensitivity to teacher drift is so high that the model collapses by
+epoch 5. Setting $w_p^{\max}=0.1$ (v3) preserves the early-epoch
+gain while delaying the collapse onset to epoch~9 in $\hsource$ and
+epoch~2 in $\stoh$. The slower onset is what allows the
+\texttt{best\_student} checkpoint policy to capture useful weights at
+all. Sec.~\ref{sec:exp:long} quantifies the collapse and motivates
+the conservative cap as a structural choice rather than a budget
+compromise.

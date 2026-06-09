@@ -2,32 +2,77 @@
 \label{sec:discussion}
 
 \subsection{When is self-training UDA useful?}
-\TODO{Distil the asymmetric finding into a practical guideline: UDA is
-worth the engineering cost precisely when the source-only model fails
-structurally (zero or near-zero target $\hmean$). When source-only
-already produces a weak target signal, the same engineering effort is
-better spent on threshold tuning or stronger backbones.}
+The asymmetric gain finding translates into a practical decision rule.
+Before committing engineering effort to a self-training UDA pipeline,
+practitioners should first measure the source-only target $\hmean$
+under a post-process sweep. If the swept-best $\hmean$ is bounded
+below $\sim$$0.01$ (no detectable target signal at any threshold), the
+UDA pipeline is the only viable path to non-trivial detection and the
+gain can be substantial -- $+6.26$~pp in our $\stoh$ direction. If
+the swept-best $\hmean$ already exceeds the noise floor, threshold
+sweeping and modest backbone upgrades are likely to recover the same
+gain at a fraction of the engineering cost; the additional plumbing
+of an EMA teacher and a domain head is unlikely to repay its complexity
+cost. This regime distinction is, in our view, the most actionable
+output of the present study.
 
 \subsection{Why does long training collapse?}
-\TODO{Explain the teacher--student drift mechanism. Once the EMA
-teacher tilts towards over-confident predictions (high precision, low
-recall), the student's pseudo-label loss reinforces this conservatism,
-which the EMA absorbs back into the teacher. Even $w_p^{\max}=0.1$ is
-sufficient to amplify this loop over 10+ epochs. A consistency-based
-regulariser or confidence-aware weighting would likely break the
-feedback, but is left to future work.}
+We attribute the long-run collapse to a teacher--student drift loop
+that is intrinsic to confidence-thresholded self-training without
+source-target consistency regularisation. Once the EMA teacher tilts
+towards over-confident predictions (high precision, low recall on the
+target validation set, observable in our per-epoch metrics from
+epoch~$9$ onwards on $\hsource$), the binarisation step in
+Eq.~\ref{eq:keep} retains only the highest-confidence regions as
+pseudo-ground-truth. The student is then trained to reproduce these
+increasingly conservative pseudo-labels, which the EMA step in
+Eq.~\ref{eq:ema} folds back into the teacher with a $1{-}\alpha
+=10^{-3}$ coefficient. Over $\sim$$10$ epochs the loop tightens,
+recall collapses, and the model converges to predicting nothing -- the
+same failure mode as the cold-start case, reached this time from above
+rather than from below.
+
+Three mechanisms could in principle break the loop. (i) A consistency
+loss between weak and strong augmentations of the same target image
+would give the student a non-pseudo signal on the target domain.
+(ii) A confidence-aware loss weight on each pseudo-pixel, rather than
+the coarse per-image keep flag of Eq.~\ref{eq:keep}, would let
+low-confidence regions contribute proportionally rather than be
+dropped. (iii) A teacher reset or rollback policy could escape the
+drift trajectory once collapse is detected. We leave a systematic
+comparison of these mitigations to future work; in the present paper
+the $5$-epoch budget side-steps the problem at no measurable cost to
+final $\hmean$.
 
 \subsection{Limitations}
-\TODO{(i) Only ResNet-18 evaluated due to MPS budget; ResNet-50 might
-shift the absolute numbers. (ii) Only image-level DANN; region-level
-or multi-scale DANN may help on $\hsource$ where the cap may stem from
-weak feature alignment. (iii) Single seed per configuration; we report
-a $\sim$0.4~pp run-to-run variance based on direct re-runs of v3
-(0.0596 vs.\ 0.0633), which is comparable to the $\hsource$ UDA gain
-itself.}
+The present study has three limitations that we name explicitly
+rather than minimise. First, the backbone is ResNet-18 throughout;
+MPS memory constraints on our single-device setting made longer
+ResNet-50 schedules impractical, and we have not verified whether the
+asymmetric gain phenomenon persists or attenuates with a stronger
+oracle. Second, the domain head is image-level only; a multi-scale or
+region-level DANN may close more of the $\hsource$ gap, where our
+results suggest weak feature alignment rather than weak detection
+capability is the binding constraint. Third, we report single-seed
+numbers because the per-run compute budget (5--10 min/epoch on MPS) is
+small but multi-run sweeps were still time-consuming; our direct
+re-runs of v3 give a $\sim$$0.4$~pp $\hmean$ run-to-run variance on
+validation ($0.0596$ vs.\ $0.0633$), which is comparable to the
+$\hsource$ UDA gain itself, and we have flagged this explicitly in
+the headline interpretation.
 
 \subsection{Future work}
-\TODO{Stronger oracle (R50 + 80 epochs) for both source domains; MIC
-or Adaptive-Teacher style consistency to break the drift collapse;
-extending to text recognition and end-to-end spotting once recognition
-labels become available.}
+Three extensions are natural. (i) Replace the ResNet-18 + image-DANN
+combination with a ResNet-50 + multi-scale DANN, and re-measure both
+the absolute $\hmean$ and the magnitude of the asymmetric gap. We
+expect the cold-start regime ($\stoh$) to widen further -- a stronger
+source encoder makes the cold-start fix even more powerful -- while
+the $\hsource$ regime may move closer to its calibration ceiling.
+(ii) Add a MIC-style~\cite{hoyer2023mic} masked-image consistency loss
+to the pseudo-label branch, replacing the keep-or-drop binary filter
+of Eq.~\ref{eq:keep} with a soft consistency objective that we
+hypothesise would break the drift collapse and unlock longer training.
+(iii) Once Mongolian recognition annotations become available,
+extend the pipeline to end-to-end spotting; the same cross-domain
+asymmetry is likely to appear at the recognition layer with a
+different (and possibly more aggressive) cold-start failure mode.

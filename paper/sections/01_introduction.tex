@@ -1,17 +1,62 @@
 \section{Introduction}
 \label{sec:intro}
 
-\TODO{Introduction draft -- to be written. Suggested 4 paragraphs:
-(1) Cross-domain text detection motivation, especially for under-resourced
-    scripts like Mongolian where annotated data is scarce in some
-    domains (handwritten archives) but more available in others (natural
-    scenes), and vice versa for different sub-tasks.
-(2) Why off-the-shelf UDA methods (teacher--student self-training, DANN)
-    are attractive for this setting (no target labels, light overhead).
-(3) Our key empirical observations: cold-start collapse of self-training
-    when source-target gap is too wide; asymmetric UDA gain; 5-epoch
-    structural sweet spot.
-(4) Contributions list and paper outline.}
+Text detection on under-resourced scripts is a persistent bottleneck for
+real-world document understanding. Mongolian, written vertically and used
+across both handwritten archival pages and modern signage, is a
+representative case: a single script appears in two visually disjoint
+domains, and supervised training data exists in different quantities for
+each. Practitioners therefore face an asymmetric supervision problem in
+which a model trained on the dominant domain must transfer to a target
+domain that may share script but differs sharply in background,
+illumination, layout, and writing style. Naive cross-domain transfer
+of a single-domain detector typically yields target-domain
+$\hmean$ that is one to two orders of magnitude lower than the
+in-domain oracle. The gap is severe enough that in one of the two
+transfer directions we study below, the source-only model produces
+zero true positives at every post-process threshold setting.
+
+Unsupervised domain adaptation (UDA) offers an attractive remedy
+because it requires no target-domain labels and can be bolted on top of
+an existing detection backbone. The canonical UDA recipe for
+object/text detection combines two ingredients: feature-level
+distribution alignment via a gradient-reversal domain classifier
+(DANN~\cite{ganin2015dann}) and target-domain self-training via an
+EMA teacher generating pseudo-labels for the student~\cite{li2022adapttch}.
+Each ingredient is light, simple to implement, and adds only a small
+runtime overhead, making the combination especially appealing for
+small-corpus, low-budget settings such as ours (Apple-Silicon MPS,
+single device, $\sim$2500 total images, ResNet-18 backbone).
+
+Despite the simplicity of the recipe, applying it to a real cross-domain
+benchmark surfaces failure modes that the literature has largely
+glossed over. We report three. First, when the source-only model
+produces effectively zero detections on the target domain, the
+randomly initialised teacher generates pseudo-labels indistinguishable
+from random predictions, and the self-training loop never escapes the
+trivial fixed point of predicting nothing -- a phenomenon we call
+\emph{cold-start collapse}. Second, on the same UDA pipeline applied
+to both transfer directions, the magnitude of improvement varies by an
+order of magnitude: the harder direction (scene$\to$handwriting,
+source-only $\hmean = 0$) gains $+6.26$~pp $\hmean$ on the target test
+split, while the easier direction
+(handwriting$\to$scene, source-only $\hmean \approx 0.075$ after
+threshold tuning) gains only $+0.14$~pp -- well within run-to-run
+variance. We call this the \emph{asymmetric UDA gain phenomenon}.
+Third, contrary to the usual assumption that more epochs help, both
+directions exhibit a sharp \emph{5-epoch structural sweet spot}:
+extending training to 25 epochs causes teacher--student drift
+collapse and degrades target $\hmean$ by an order of magnitude even
+under a conservative pseudo-label weight schedule.
+
+These observations suggest that practitioners of self-training UDA on
+under-resourced scripts should re-examine three default assumptions:
+that random initialisation suffices, that UDA produces a roughly
+uniform gain across transfer directions, and that more training
+epochs are safer than fewer. The remainder of this paper presents the
+pipeline, diagnoses each failure mode, proposes a single-line fix for
+the cold-start case, and quantifies all three findings on a clean
+Mongolian cross-domain benchmark.
 
 \paragraph{Contributions.}
 \begin{enumerate}

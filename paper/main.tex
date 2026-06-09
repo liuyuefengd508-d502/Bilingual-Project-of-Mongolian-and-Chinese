@@ -1,16 +1,20 @@
 % !TEX TS-program = pdflatex
-% Neurocomputing single-column manuscript template (elsarticle)
-\documentclass[final,5p,times,twocolumn]{elsarticle}
+% Neurocomputing manuscript -- development template.
+% For final submission, swap \documentclass to:
+%   \documentclass[final,5p,times,twocolumn]{elsarticle}
+% and uncomment the \begin{frontmatter} ... \end{frontmatter} block below.
+\documentclass[11pt,a4paper]{article}
 
 % --- Packages ---
+\usepackage[margin=2.2cm]{geometry}
 \usepackage{graphicx}
 \usepackage{amsmath,amssymb}
 \usepackage{booktabs}
 \usepackage{multirow}
-\usepackage{makecell}
 \usepackage{xcolor}
 \usepackage{url}
 \usepackage{hyperref}
+\usepackage{authblk}
 \hypersetup{colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue}
 
 % Convenience macros
@@ -19,32 +23,28 @@
 \newcommand{\stoh}{S{\rightarrow}H}
 \newcommand{\TODO}[1]{\textcolor{red}{[TODO: #1]}}
 
-\journal{Neurocomputing}
+% elsarticle-only macros that we stub for the article class
+\providecommand{\corref}[1]{}
+\providecommand{\cortext}[2]{}
+\providecommand{\ead}[1]{\\\texttt{#1}}
+\newenvironment{keyword}{\vspace{6pt}\noindent\textbf{Keywords:} }{\par\vspace{6pt}}
+\providecommand{\sep}{,}
+
+\title{Cold-Start Initialization Unlocks Asymmetric Unsupervised Domain
+       Adaptation in Cross-Domain Mongolian Text Detection}
+\author[1]{Yuefeng Liu\thanks{Corresponding author. \texttt{liuyuefengd508@gmail.com}}}
+\affil[1]{\TODO{Affiliation}}
+\date{}
 
 \begin{document}
-
-\begin{frontmatter}
-
-\title{Cold-Start Initialization Unlocks Asymmetric \\
-       Unsupervised Domain Adaptation in \\
-       Cross-Domain Mongolian Text Detection}
-
-\author[a]{Yuefeng Liu\corref{cor1}}
-\ead{liuyuefengd508@gmail.com}
-\cortext[cor1]{Corresponding author.}
-
-\affiliation[a]{organization={\TODO{Affiliation}},
-                addressline={},
-                city={},
-                country={}}
+\maketitle
 
 \input{sections/00_abstract}
+
 \begin{keyword}
 text detection \sep unsupervised domain adaptation \sep self-training \sep
 Mongolian script \sep cross-domain learning \sep teacher--student
 \end{keyword}
-
-\end{frontmatter}
 
 \input{sections/01_introduction}
 \input{sections/02_related_work}
@@ -56,7 +56,8 @@ Mongolian script \sep cross-domain learning \sep teacher--student
 % \section*{Acknowledgments}
 % \TODO{Acknowledgments}
 
-\bibliographystyle{elsarticle-num}
+% For final submission, switch back to \bibliographystyle{elsarticle-num}.
+\bibliographystyle{unsrt}
 \bibliography{references}
 
 \end{document}
