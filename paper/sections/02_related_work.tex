@@ -1,0 +1,31 @@
+\section{Related Work}
+\label{sec:related}
+
+\subsection{Scene and handwritten text detection}
+\TODO{Cover DBNet/DBNet++~\cite{liao2020real,liao2022dbpp}, FCENet~\cite{zhu2021fcenet},
+PSENet~\cite{wang2019pse}, and handwriting-specific work
+on archival document layout (especially Mongolian/Manchu sources).}
+
+\subsection{Unsupervised domain adaptation for OCR}
+\TODO{Survey teacher--student self-training (Adaptive Teacher~\cite{li2022adapttch},
+MIC~\cite{hoyer2023mic}), feature-level domain alignment (DANN~\cite{ganin2015dann}),
+pseudo-label denoising. Highlight that almost all prior UDA-OCR work assumes
+either (a) the source-only model already produces non-trivial target output, or
+(b) carefully curated synthetic-to-real gaps. Our setting has neither.}
+
+\subsection{Mongolian and bilingual Mongolian--Chinese text detection}
+\TODO{Cite USTB Mongolian scene paper (J.\ King Saud Univ.\ CS, 2025)~\cite{ustb2025scene}
+and USTB Mongolian handwriting paper (IJDAR, 2026)~\cite{ustb2026handwrite}.
+Both target single-domain detection on the same data we use; neither addresses
+the cross-domain transfer problem. Position our work as the first systematic
+cross-domain UDA study on this corpus.}
+
+\subsection{Positioning}
+Compared to prior UDA-OCR work, our problem has two distinguishing properties:
+(i) one of the two cross-domain directions has a true zero source-only
+baseline (no detections at any threshold), creating an extreme cold-start
+condition; and (ii) the corpus is small and the compute budget is constrained
+to a single Apple-Silicon (MPS) device, ruling out long schedules and
+heavy backbones. These properties expose failure modes (Sec.~\ref{sec:method})
+and motivate the conservative training schedule we adopt
+(Sec.~\ref{sec:exp}).

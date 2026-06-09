@@ -1,0 +1,33 @@
+\section{Discussion}
+\label{sec:discussion}
+
+\subsection{When is self-training UDA useful?}
+\TODO{Distil the asymmetric finding into a practical guideline: UDA is
+worth the engineering cost precisely when the source-only model fails
+structurally (zero or near-zero target $\hmean$). When source-only
+already produces a weak target signal, the same engineering effort is
+better spent on threshold tuning or stronger backbones.}
+
+\subsection{Why does long training collapse?}
+\TODO{Explain the teacher--student drift mechanism. Once the EMA
+teacher tilts towards over-confident predictions (high precision, low
+recall), the student's pseudo-label loss reinforces this conservatism,
+which the EMA absorbs back into the teacher. Even $w_p^{\max}=0.1$ is
+sufficient to amplify this loop over 10+ epochs. A consistency-based
+regulariser or confidence-aware weighting would likely break the
+feedback, but is left to future work.}
+
+\subsection{Limitations}
+\TODO{(i) Only ResNet-18 evaluated due to MPS budget; ResNet-50 might
+shift the absolute numbers. (ii) Only image-level DANN; region-level
+or multi-scale DANN may help on $\hsource$ where the cap may stem from
+weak feature alignment. (iii) Single seed per configuration; we report
+a $\sim$0.4~pp run-to-run variance based on direct re-runs of v3
+(0.0596 vs.\ 0.0633), which is comparable to the $\hsource$ UDA gain
+itself.}
+
+\subsection{Future work}
+\TODO{Stronger oracle (R50 + 80 epochs) for both source domains; MIC
+or Adaptive-Teacher style consistency to break the drift collapse;
+extending to text recognition and end-to-end spotting once recognition
+labels become available.}

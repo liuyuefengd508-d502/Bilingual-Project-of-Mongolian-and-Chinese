@@ -1,0 +1,104 @@
+\section{Experiments}
+\label{sec:exp}
+
+\subsection{Datasets and splits}
+\label{sec:exp:data}
+\TODO{Document handwriting (1003 images, 20{,}115 polygons) and scene
+(1502 images, 18{,}598 polygons), training/val/test split ratios,
+and the polygon vs.\ quadrilateral distribution. Include a small
+illustrative figure (one tile per domain).}
+
+\subsection{Implementation details}
+\label{sec:exp:impl}
+\TODO{Hardware (Apple M5 Pro, MPS), framework (PyTorch nightly),
+optimiser (AdamW, lr 1e-4), batch size, augmentation, training/eval
+thresholds, total walltime per run.}
+
+\subsection{Cross-domain motivation: oracle vs.\ source-only}
+\label{sec:exp:motivation}
+
+\TODO{Insert reproduction of Stage-1 motivation table from
+\texttt{baseline\_results.md}: scene oracle = 0.385 in-domain $\hmean$;
+handwriting oracle = 0.863; cross-domain $\hsource$ source-only = 0.059;
+$\stoh$ source-only = 0.000. Emphasise that $\stoh$ source-only produces
+zero true positives at every post-process threshold, motivating the
+cold-start fix discussed in Sec.~\ref{sec:method:coldstart}.}
+
+\begin{table}[t]
+\centering
+\caption{Cross-domain motivation. In-domain numbers (oracle) and
+cross-domain source-only numbers on the test split, all at the matched
+post-process thresholds (\texttt{box-thresh}=0.45, \texttt{min-score}=0.5).}
+\label{tab:motivation}
+\begin{tabular}{lcc}
+\toprule
+Setting & In-domain $\hmean$ & Cross-domain $\hmean$ \\
+\midrule
+Handwriting oracle ($\hsource$) & 0.863 & 0.0592 \\
+Scene oracle      ($\stoh$)     & 0.385 & 0.0000 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Main UDA results}
+\label{sec:exp:main}
+
+\TODO{Insert main results table covering both directions, fixed-thresh
+and swept-thresh columns, source-only vs.\ UDA, with $\Delta$ in pp.
+Numbers are fully captured in baseline\_results.md.}
+
+\begin{table*}[t]
+\centering
+\caption{Main UDA results on the target test split. $\Delta$ is the
+absolute improvement of UDA over source-only at the same threshold
+configuration. Bold entries are the per-direction best.}
+\label{tab:main}
+\begin{tabular}{lcc cc cc}
+\toprule
+& \multicolumn{2}{c}{\textbf{Fixed thresh (0.45/0.5)}}
+& \multicolumn{2}{c}{\textbf{Swept best}}
+& \multicolumn{2}{c}{\textbf{$\Delta$ (pp)}} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+Direction & Source-only & UDA & Source-only & UDA & fixed & swept \\
+\midrule
+$\hsource$ & 0.0592 & 0.0626 & 0.0753 & \textbf{0.0767} & $+0.34$ & $+0.14$ \\
+$\stoh$    & 0.0000 & 0.0285 & 0.0028 & \textbf{0.0654} & $+2.85$ & $\mathbf{+6.26}$ \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\subsection{Asymmetric UDA gain analysis}
+\label{sec:exp:asym}
+\TODO{Discuss why $\stoh$ benefits dramatically and $\hsource$ barely
+moves once thresholds are swept on both sides. Two factors:
+(i) the source-only model on $\hsource$ already captures enough generic
+text-edge signal that threshold sweeping recovers most of the achievable
+$\hmean$; (ii) the $\stoh$ source-only model truly produces nothing,
+so any non-trivial detection capability must originate from the UDA
+self-training process, which in turn is unlocked by the cold-start fix.
+This reframes UDA's role: not as a uniform booster, but as a recovery
+mechanism for structurally broken transfer directions.}
+
+\subsection{Long-training analysis}
+\label{sec:exp:long}
+\TODO{Show the 25-epoch curve for $\hsource$ (best $\hmean = 0.0596$ at
+ep 3, collapses to $\sim$0.005 by ep 18). Show the 25-epoch curve for
+$\stoh$ (best $\hmean = 0.0353$ at ep 1, collapses to $\sim$0 by ep 8,
+remains zero through ep 25). Plot both as a single figure. Argue that
+the 5-epoch sweet spot is structural, not a budget artefact.}
+
+\subsection{Hyperparameter ablation}
+\label{sec:exp:ablation}
+\TODO{Present v1 (pseudo-weight-max 0.5, score 0.55), v2 (0.2, 0.7),
+v3 (0.1, 0.55) on $\hsource$; argue that v3 best matches v1 best with
+much milder late-epoch degradation, and that v2's stricter score
+threshold disables the pseudo-label signal entirely by ep 5.}
+
+\subsection{Qualitative results}
+\label{sec:exp:qual}
+\TODO{Insert the two main comparison figures from
+\texttt{docs/figures/}: one for $\hsource$, one for $\stoh$ at the
+swept-best thresholds. Each figure shows six rows of the same target
+image, source-only on top, UDA below, with input/GT/heatmap/pred
+panels. Highlight $\stoh$ where source-only has $\texttt{pred}(0)$ and
+UDA recovers visible text columns.}

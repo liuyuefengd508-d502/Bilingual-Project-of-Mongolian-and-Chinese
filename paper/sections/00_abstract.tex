@@ -1,0 +1,29 @@
+\begin{abstract}
+Cross-domain text detection on under-resourced scripts faces severe domain
+gaps that simple fine-tuning cannot bridge. We study unsupervised domain
+adaptation (UDA) for Mongolian text detection across two natural domains:
+handwritten archival pages and natural scene images. Building on a standard
+teacher--student self-training pipeline with image-level domain-adversarial
+alignment (DANN), we identify a previously overlooked failure mode that we
+term \emph{cold-start collapse}: when the source--target gap is so wide that
+the source-only model produces zero detections on the target domain, a
+randomly initialised teacher generates pure-noise pseudo-labels and the
+self-training loop never escapes this trivial fixed point. We propose a
+minimal remedy---initialising both student and teacher from the source-only
+checkpoint---which transforms the harder of the two cross-domain directions
+(scene-to-handwriting) from $0/3996$ true positives to $93/3996$ on the test
+set, an absolute $\hmean$ improvement of $+6.26$ percentage points after
+threshold sweeping ($0.0028 \rightarrow 0.0654$).
+On the easier direction (handwriting-to-scene), where the source-only model
+already produces a weak target-domain signal, the same UDA pipeline yields
+only marginal improvement ($+0.14$ pp); we report and analyse this
+\emph{asymmetric UDA gain} phenomenon. We additionally document a structural
+\emph{five-epoch sweet spot}: both directions exhibit teacher--student drift
+collapse beyond five epochs, with $\hmean$ degrading by an order of magnitude
+when training is extended to 25 epochs even under a conservative
+pseudo-label weight schedule. Our findings highlight that for low-budget,
+small-corpus UDA on under-resourced scripts, classical assumptions about
+training duration and initialisation no longer apply, and that the most
+useful regime for self-training UDA is precisely where the source-only
+baseline is structurally broken.
+\end{abstract}

@@ -1,0 +1,62 @@
+% !TEX TS-program = pdflatex
+% Neurocomputing single-column manuscript template (elsarticle)
+\documentclass[final,5p,times,twocolumn]{elsarticle}
+
+% --- Packages ---
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{makecell}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue}
+
+% Convenience macros
+\newcommand{\hmean}{H\textsubscript{mean}}
+\newcommand{\hsource}{H{\rightarrow}S}
+\newcommand{\stoh}{S{\rightarrow}H}
+\newcommand{\TODO}[1]{\textcolor{red}{[TODO: #1]}}
+
+\journal{Neurocomputing}
+
+\begin{document}
+
+\begin{frontmatter}
+
+\title{Cold-Start Initialization Unlocks Asymmetric \\
+       Unsupervised Domain Adaptation in \\
+       Cross-Domain Mongolian Text Detection}
+
+\author[a]{Yuefeng Liu\corref{cor1}}
+\ead{liuyuefengd508@gmail.com}
+\cortext[cor1]{Corresponding author.}
+
+\affiliation[a]{organization={\TODO{Affiliation}},
+                addressline={},
+                city={},
+                country={}}
+
+\input{sections/00_abstract}
+\begin{keyword}
+text detection \sep unsupervised domain adaptation \sep self-training \sep
+Mongolian script \sep cross-domain learning \sep teacher--student
+\end{keyword}
+
+\end{frontmatter}
+
+\input{sections/01_introduction}
+\input{sections/02_related_work}
+\input{sections/03_method}
+\input{sections/04_experiments}
+\input{sections/05_discussion}
+\input{sections/06_conclusion}
+
+% \section*{Acknowledgments}
+% \TODO{Acknowledgments}
+
+\bibliographystyle{elsarticle-num}
+\bibliography{references}
+
+\end{document}
