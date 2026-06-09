@@ -20,7 +20,7 @@ We split each domain into train/val/test in a $70/15/15$ ratio,
 producing $702/150/151$ for $H$ and $1\,051/225/226$ for $S$. All
 splits are stored as MMOCR-style JSONL files alongside the code release.
 
-\begin{figure}[t]
+\begin{figure}[H]
   \centering
   \includegraphics[width=\linewidth]{figures/datasets_overview.jpg}
   \caption{Representative samples from the two domains. Top: a
@@ -151,7 +151,7 @@ extended both directions to $25$ epochs at the otherwise identical v3
 configuration. Fig.~\ref{fig:longrun} shows the per-epoch target
 validation $\hmean$ for both directions.
 
-\begin{figure}[t]
+\begin{figure}[H]
   \centering
   \includegraphics[width=\linewidth]{figures/long_run_curves.pdf}
   \caption{Long-training curves over $25$ epochs at $w_p^{\max}=0.1$.
@@ -224,9 +224,9 @@ Fig.~\ref{fig:qual_h2s} for symmetry, where the contrast is
 visually marginal -- consistent with the small $\hsource$ swept
 $\Delta$ of $+0.14$~pp.
 
-\begin{figure}[t]
+\begin{figure}[H]
   \centering
-  \includegraphics[width=\linewidth,height=0.85\textheight,keepaspectratio]{figures/compare_s2h_handwrite_sweep.jpg}
+  \includegraphics[width=\linewidth,height=0.78\textheight,keepaspectratio]{figures/compare_s2h_handwrite_sweep.jpg}
   \caption{$\stoh$ qualitative comparison at the swept-best thresholds
   ($0.35/0.45$). Six target test pages, paired vertically: source-only
   on top, UDA below. Each panel shows
@@ -236,9 +236,9 @@ $\Delta$ of $+0.14$~pp.
   \label{fig:qual_s2h}
 \end{figure}
 
-\begin{figure}[t]
+\begin{figure}[H]
   \centering
-  \includegraphics[width=\linewidth,height=0.85\textheight,keepaspectratio]{figures/compare_h2s_scene.jpg}
+  \includegraphics[width=\linewidth,height=0.78\textheight,keepaspectratio]{figures/compare_h2s_scene.jpg}
   \caption{$\hsource$ qualitative comparison at the fixed thresholds
   ($0.45/0.5$). Visual contrast between source-only and UDA is small,
   matching the swept-best $\Delta = +0.14$~pp in
