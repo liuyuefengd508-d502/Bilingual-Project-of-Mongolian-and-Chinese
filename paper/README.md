@@ -11,29 +11,46 @@ paper/
 ├── references.bib
 ├── sections/
 │   ├── 00_abstract.tex     ✅ first draft
-│   ├── 01_introduction.tex ⚠ contributions list ✅; prose body TODO
-│   ├── 02_related_work.tex ⚠ subsection skeleton ✅; prose TODO
-│   ├── 03_method.tex       ⚠ key cold-start fix paragraph ✅; equations TODO
-│   ├── 04_experiments.tex  ⚠ main results table ✅; other tables/figs TODO
-│   ├── 05_discussion.tex   ⚠ skeleton with TODOs
-│   └── 06_conclusion.tex   ⚠ skeleton TODO
-└── figures/                # to be populated from docs/figures/
+│   ├── 01_introduction.tex ✅ four-paragraph intro + contributions list
+│   ├── 02_related_work.tex ✅ prose complete
+│   ├── 03_method.tex       ✅ equations + cold-start fix complete
+│   ├── 04_experiments.tex  ✅ all 8 subsections + 4 figures + 3 tables
+│   ├── 05_discussion.tex   ✅ four discussion subsections
+│   └── 06_conclusion.tex   ✅ three-contribution summary
+└── figures/                ✅ 4 figures generated/copied
 ```
 
 ## Build
 
+Two compilable manuscripts are maintained in parallel:
+
+| File | Purpose | Class | Layout |
+|---|---|---|---|
+| `main.tex` | Development / proof-reading | `article` | single column, 14 pages |
+| `main_neurocomputing.tex` | **Submission to Neurocomputing** | `elsarticle` (vendored) | two column, 10 pages |
+
+Both share the same `sections/`, `figures/` and `references.bib`. Either compiles
+with the standard MacTeX BasicTeX distribution -- elsarticle.cls is vendored
+locally so no `sudo tlmgr install` is required.
+
 ```bash
 cd paper
+# Development build
 pdflatex main.tex && bibtex main && pdflatex main.tex && pdflatex main.tex
+
+# Submission build (Neurocomputing two-column)
+pdflatex main_neurocomputing.tex && bibtex main_neurocomputing && \
+  pdflatex main_neurocomputing.tex && pdflatex main_neurocomputing.tex
 ```
 
 (Requires a TeX distribution. On macOS: `brew install --cask mactex-no-gui`.)
 
 ## Status
 
-**~85% drafted -- complete first draft compiles to 13-page PDF.**
-Remaining work is Related Work prose, citation verification, affiliation,
-and template switch to elsarticle for final submission.
+**Submission-ready first draft.**
+- `main_neurocomputing.tex` compiles to 10 pages in Neurocomputing two-column format with all sections filled and references resolved.
+- `main.tex` keeps the article-class single-column build for proof-reading.
+- 0 remaining `\TODO` markers in body sections.
 
 ### Done
 - Document skeleton with all sections wired up

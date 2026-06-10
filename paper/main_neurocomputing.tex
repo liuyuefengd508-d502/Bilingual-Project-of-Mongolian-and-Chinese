@@ -1,0 +1,84 @@
+% !TEX TS-program = pdflatex
+% Neurocomputing submission version using the official elsarticle class.
+% The class file (elsarticle.cls) and the elsarticle-num.bst bibstyle
+% are vendored in paper/ so this compiles without a system-wide install.
+\documentclass[final,5p,times,twocolumn]{elsarticle}
+
+% --- Packages ---
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{float}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue}
+
+% Convenience macros
+\newcommand{\hmean}{H\textsubscript{mean}}
+\newcommand{\hsource}{H{\rightarrow}S}
+\newcommand{\stoh}{S{\rightarrow}H}
+\newcommand{\TODO}[1]{\textcolor{red}{[TODO: #1]}}
+
+\journal{Neurocomputing}
+
+\begin{document}
+
+\begin{frontmatter}
+
+\title{Cold-Start Initialization Unlocks Asymmetric Unsupervised
+       Domain Adaptation in Cross-Domain Mongolian Text Detection}
+
+\author[a]{Lanying Liang}
+\ead{lianglanying@imust.edu.cn}
+
+\author[b]{Yuefeng Liu\corref{cor1}}
+\ead{liuyuefeng@imust.edu.cn}
+\cortext[cor1]{Corresponding author.}
+
+\affiliation[a]{organization={Archives, Inner Mongolia University of Science and Technology},
+                city={Baotou},
+                postcode={014010},
+                state={Inner Mongolia},
+                country={China}}
+
+\affiliation[b]{organization={School of Digital and Intelligent Industry
+                              (School of Cyber Science and Technology),
+                              Inner Mongolia University of Science and Technology},
+                city={Baotou},
+                postcode={014010},
+                state={Inner Mongolia},
+                country={China}}
+
+\input{sections/00_abstract}
+
+\begin{keyword}
+text detection \sep unsupervised domain adaptation \sep self-training \sep
+Mongolian script \sep cross-domain learning \sep teacher--student
+\end{keyword}
+
+\end{frontmatter}
+
+\input{sections/01_introduction}
+\input{sections/02_related_work}
+\input{sections/03_method}
+\input{sections/04_experiments}
+\input{sections/05_discussion}
+\input{sections/06_conclusion}
+
+\section*{Acknowledgments}
+This work was supported by the China Scholarship Council
+(Grant No.~202408150080, Liujinxuan [2024]42); the National Natural
+Science Foundation of China (Grant No.~62341604); the Natural Science
+Foundation of Inner Mongolia (Grant No.~2026MS0463); the General
+Project of the 14th Five-Year Plan for Educational Science of Inner
+Mongolia Autonomous Region (Grant No.~NGJGH2025013); and the General
+Research Project on Ethnic Languages and Characters, Research Program
+for Ethnic Work, Ethnic Affairs Commission of Inner Mongolia Autonomous
+Region (Project No.~2026-NMWYB038).
+
+\bibliographystyle{elsarticle-num}
+\bibliography{references}
+
+\end{document}

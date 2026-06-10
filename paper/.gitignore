@@ -7,3 +7,6 @@
 *.fls
 *.fdb_latexmk
 *.synctex.gz
+*.ins
+*.dtx
+*.spl

@@ -20,9 +20,9 @@ We split each domain into train/val/test in a $70/15/15$ ratio,
 producing $702/150/151$ for $H$ and $1\,051/225/226$ for $S$. All
 splits are stored as MMOCR-style JSONL files alongside the code release.
 
-\begin{figure}[H]
+\begin{figure*}[tbp]
   \centering
-  \includegraphics[width=\linewidth]{figures/datasets_overview.jpg}
+  \includegraphics[width=0.85\textwidth]{figures/datasets_overview.jpg}
   \caption{Representative samples from the two domains. Top: a
   handwritten archival page ($H$) with dense vertical Mongolian script
   and multi-column layout. Bottom: a natural scene image ($S$) with
@@ -30,7 +30,7 @@ splits are stored as MMOCR-style JSONL files alongside the code release.
   text. The two domains share script but differ in background,
   layout density, and capture conditions.}
   \label{fig:datasets}
-\end{figure}
+\end{figure*}
 
 \subsection{Implementation details}
 \label{sec:exp:impl}
@@ -90,10 +90,18 @@ Scene oracle      ($\stoh$)     & 0.385 & 0.0000 \\
 
 \subsection{Main UDA results}
 \label{sec:exp:main}
-
-\TODO{Insert main results table covering both directions, fixed-thresh
-and swept-thresh columns, source-only vs.\ UDA, with $\Delta$ in pp.
-Numbers are fully captured in baseline\_results.md.}
+Table~\ref{tab:main} reports the headline numbers of this paper.
+The fixed-threshold columns use the same post-processing configuration
+($\texttt{box-thresh}=0.45$, $\texttt{min-score}=0.5$) for both
+source-only and UDA checkpoints. The swept columns search a
+$5\times 6$ grid of post-process thresholds on the target test set
+and report the best $\hmean$ per checkpoint, applied identically to
+source-only and UDA so the comparison remains fair. On $\hsource$
+the fixed-thresh UDA gain is a marginal $+0.34$~pp and the swept
+gap shrinks to $+0.14$~pp; on $\stoh$ the gain widens from $+2.85$~pp
+under fixed thresholds to $\mathbf{+6.26}$~pp under sweeping. The
+asymmetry between the two directions is the central empirical
+finding of this paper and is analysed in Sec.~\ref{sec:exp:asym}.
 
 \begin{table*}[t]
 \centering
@@ -151,9 +159,9 @@ extended both directions to $25$ epochs at the otherwise identical v3
 configuration. Fig.~\ref{fig:longrun} shows the per-epoch target
 validation $\hmean$ for both directions.
 
-\begin{figure}[H]
+\begin{figure*}[tbp]
   \centering
-  \includegraphics[width=\linewidth]{figures/long_run_curves.pdf}
+  \includegraphics[width=0.85\textwidth]{figures/long_run_curves.pdf}
   \caption{Long-training curves over $25$ epochs at $w_p^{\max}=0.1$.
   $\hsource$ peaks at epoch~$3$ ($\hmean=0.0596$) and degrades to
   $\sim$$0.005$ by epoch~$18$; $\stoh$ peaks at epoch~$1$
@@ -162,7 +170,7 @@ validation $\hmean$ for both directions.
   teacher--student drift collapse mechanism, with $\stoh$ exhibiting a
   much narrower stable window.}
   \label{fig:longrun}
-\end{figure}
+\end{figure*}
 
 Three observations support a structural -- rather than budget --
 interpretation of the $5$-epoch sweet spot. First, the long-run best
@@ -224,9 +232,9 @@ Fig.~\ref{fig:qual_h2s} for symmetry, where the contrast is
 visually marginal -- consistent with the small $\hsource$ swept
 $\Delta$ of $+0.14$~pp.
 
-\begin{figure}[H]
+\begin{figure*}[tbp]
   \centering
-  \includegraphics[width=\linewidth,height=0.78\textheight,keepaspectratio]{figures/compare_s2h_handwrite_sweep.jpg}
+  \includegraphics[width=\textwidth,height=0.78\textheight,keepaspectratio]{figures/compare_s2h_handwrite_sweep.jpg}
   \caption{$\stoh$ qualitative comparison at the swept-best thresholds
   ($0.35/0.45$). Six target test pages, paired vertically: source-only
   on top, UDA below. Each panel shows
@@ -234,14 +242,14 @@ $\Delta$ of $+0.14$~pp.
   All six source-only panels yield zero polygons; UDA recovers visible
   text-column structure on all six pages.}
   \label{fig:qual_s2h}
-\end{figure}
+\end{figure*}
 
-\begin{figure}[H]
+\begin{figure*}[tbp]
   \centering
-  \includegraphics[width=\linewidth,height=0.78\textheight,keepaspectratio]{figures/compare_h2s_scene.jpg}
+  \includegraphics[width=\textwidth,height=0.78\textheight,keepaspectratio]{figures/compare_h2s_scene.jpg}
   \caption{$\hsource$ qualitative comparison at the fixed thresholds
   ($0.45/0.5$). Visual contrast between source-only and UDA is small,
   matching the swept-best $\Delta = +0.14$~pp in
   Table~\ref{tab:main}.}
   \label{fig:qual_h2s}
-\end{figure}
+\end{figure*}

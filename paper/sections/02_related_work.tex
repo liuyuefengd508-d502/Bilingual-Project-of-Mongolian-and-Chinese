@@ -2,23 +2,83 @@
 \label{sec:related}
 
 \subsection{Scene and handwritten text detection}
-\TODO{Cover DBNet/DBNet++~\cite{liao2020real,liao2022dbpp}, FCENet~\cite{zhu2021fcenet},
-PSENet~\cite{wang2019pse}, and handwriting-specific work
-on archival document layout (especially Mongolian/Manchu sources).}
+Segmentation-based detectors dominate the modern arbitrarily-shaped
+text detection literature. PSENet~\cite{wang2019pse} predicts
+progressively shrunken text kernels and expands them at inference to
+recover instance boundaries, yielding robustness to curved and
+closely-spaced text. DBNet~\cite{liao2020real} introduces a
+differentiable binarization head that allows the threshold map to be
+learned end-to-end with the probability map, making the
+binarisation-and-contour pipeline fully trainable and substantially
+faster than prior shrink--expand variants. DBNet++~\cite{liao2022dbpp}
+adds an adaptive scale-fusion module on top of DBNet and remains the
+strongest segmentation-based baseline on standard scene benchmarks.
+FCENet~\cite{zhu2021fcenet} takes a complementary contour-regression
+view, embedding text instance contours as Fourier signatures and
+decoding them directly. In this work we adopt DBNet with a ResNet-18
+backbone as the detection scaffold: its lightweight footprint matches
+our MPS-only training budget, its segmentation output is directly
+consumable by the EMA teacher described in
+Sec.~\ref{sec:method:uda}, and its avoidance of deformable
+convolutions side-steps the operators that are unsupported on the
+Apple Silicon backend. Handwritten-document detection introduces its
+own challenges (column layouts, ink bleed-through, marginalia), which
+recent Mongolian-specific work has begun to address; we discuss the
+most relevant Mongolian baselines below.
 
 \subsection{Unsupervised domain adaptation for OCR}
-\TODO{Survey teacher--student self-training (Adaptive Teacher~\cite{li2022adapttch},
-MIC~\cite{hoyer2023mic}), feature-level domain alignment (DANN~\cite{ganin2015dann}),
-pseudo-label denoising. Highlight that almost all prior UDA-OCR work assumes
-either (a) the source-only model already produces non-trivial target output, or
-(b) carefully curated synthetic-to-real gaps. Our setting has neither.}
+Unsupervised domain adaptation for visual recognition splits broadly
+into feature-alignment and self-training families. The
+feature-alignment line begins with DANN~\cite{ganin2015dann}, which
+attaches a domain classifier to the feature extractor through a
+gradient-reversal layer, encouraging features to be domain-invariant.
+DANN-style alignment is now a standard component of cross-domain
+detection pipelines. The self-training line uses pseudo-labels
+produced by an EMA teacher on the unlabeled target domain to
+supervise the student; Cross-Domain Adaptive Teacher
+(AT)~\cite{li2022adapttch} demonstrated that combining
+teacher--student pseudo-labelling with image-level adversarial
+alignment substantially closes the source-to-target gap on object
+detection benchmarks, and MIC~\cite{hoyer2023mic} further showed that
+masked-image consistency can suppress the teacher--student drift that
+long-schedule self-training tends to develop.
+
+Most UDA-detection studies, however, evaluate on benchmarks where
+the source-only model already produces non-trivial target output
+(e.g.\ Cityscapes\,$\to$\,Foggy Cityscapes, Sim10k\,$\to$\,Cityscapes),
+so the pseudo-label loop has a reasonable starting point. Our
+setting differs in two key ways. First, one of the two cross-domain
+directions we study has zero source-only true positives -- a true
+cold-start condition in which the teacher cannot bootstrap by
+itself. Second, the corpus is small ($\sim$1k--1.5k images per
+domain) and the compute budget is constrained to a single
+Apple-Silicon device, which collectively rule out the long training
+schedules and heavy backbones common in UDA-detection work. These
+conditions surface failure modes that the prevailing recipe does not
+address, motivating the cold-start fix and conservative weighting we
+propose.
 
 \subsection{Mongolian and bilingual Mongolian--Chinese text detection}
-\TODO{Cite USTB Mongolian scene paper (J.\ King Saud Univ.\ CS, 2025)~\cite{liu2025tcdrr}
-and USTB Mongolian handwriting paper (IJDAR, 2026)~\cite{ding2026contour}.
-Both target single-domain detection on the same data we use; neither addresses
-the cross-domain transfer problem. Position our work as the first systematic
-cross-domain UDA study on this corpus.}
+Mongolian text detection has only recently received dedicated
+attention. Liu et al.~\cite{liu2025tcdrr} introduce TCDRR, a text
+clarification and deep relational reasoning detector for
+Mongolian--Chinese bilingual arbitrary-shaped scene text, evaluated
+on a custom bilingual scene benchmark, reporting an in-domain
+$F_1$ of $84.6\%$. Ding et al.~\cite{ding2026contour} address
+handwritten Mongolian archival documents with a contour-thinning
+detector that iteratively refines candidate text boundaries to
+handle marginalia and ink bleed-through, achieving an in-domain
+$F_1$ of $99.0\%$ on a self-collected benchmark.
+
+Both works tackle each domain in isolation; neither addresses the
+cross-domain transfer problem, and neither uses target-domain
+unsupervised adaptation. The present paper complements this line by
+reusing the same two domains as cross-domain endpoints, taking the
+in-domain detectors of~\cite{liu2025tcdrr,ding2026contour} as oracle
+upper bounds, and asking how well a single detector can be made to
+perform on the \emph{other} domain without target annotations. To the
+best of our knowledge, this is the first systematic cross-domain UDA
+study on a Mongolian text-detection benchmark.
 
 \subsection{Positioning}
 Compared to prior UDA-OCR work, our problem has two distinguishing properties:
